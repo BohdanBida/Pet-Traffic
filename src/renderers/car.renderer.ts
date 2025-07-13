@@ -3,9 +3,12 @@ import { CELL_SIZE } from 'constants';
 import { Car } from '@app/models';
 import { Renderer } from './base-renderer';
 
+const STOP_LIGHT_THRESHOLD = 0.025;
+
 @Injectable([CanvasRenderingContext2D])
 export class CarRenderer extends Renderer<Car> {
-    public draw({ color, x, y, angle, waitingFor }: Car): void {
+    public draw(car: Car): void {
+        const { color, x, y, angle, targetSpeed, velocity, waiting } = car;
         const width = CELL_SIZE;
         const height = CELL_SIZE * 2.5;
 
@@ -19,7 +22,7 @@ export class CarRenderer extends Renderer<Car> {
         const windowWidth = width - 2;
         const windowX = -width / 2 + 1;
 
-        if (waitingFor) {
+        if ((targetSpeed + STOP_LIGHT_THRESHOLD) < velocity || waiting || car.velocity === 0) {
             this._drawLights(windowX, -height / 2, '#FF0000', 4);
         }
 
@@ -51,7 +54,7 @@ export class CarRenderer extends Renderer<Car> {
             this.ctx.fillStyle = color;
             this.ctx.fillRect(x - 0.5, y, 7, 1);
         }
-        
+
         this.ctx.shadowColor = 'transparent';
         this.ctx.shadowBlur = 0;
     }

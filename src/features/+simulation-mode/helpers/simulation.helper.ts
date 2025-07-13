@@ -1,9 +1,10 @@
-import { INode, IRoadNode } from '@app/models';
+import { INode, IRoad, IRoadNode } from '@app/models';
 import { State } from '@app/state';
+import { GeometryHelper } from 'helpers/geometry.helper';
 import { v4 as uuid } from 'uuid';
 
 export class SimulationModeHelper {
-    public static convertEditToSim(state: State): [INode[], IRoadNode[]] {
+    public static buildNodes(state: State): [INode[], IRoadNode[]] {
         const nodeMap = new Map<string, INode>();
         let simRoads: IRoadNode[] = [];
         let simNodes: INode[] = [];
@@ -22,10 +23,12 @@ export class SimulationModeHelper {
             return nodeMap.get(key)!;
         };
 
-        simRoads = state.roads.map(r => {
-            const startNode = getOrCreateNode(r.start.x, r.start.y);
-            const endNode = getOrCreateNode(r.end.x, r.end.y);
-            const simRoad = { id: r.id!, startNode, endNode };
+        simRoads = state.roads.map((road: IRoad) => {
+            const startNode = getOrCreateNode(road.start.x, road.start.y);
+            const endNode = getOrCreateNode(road.end.x, road.end.y);
+            const length = GeometryHelper.getDistance(road.start, road.end);
+
+            const simRoad = { id: road.id!, startNode, endNode, length };
             startNode.connectedRoads.push(simRoad);
             endNode.connectedRoads.push(simRoad);
             return simRoad;

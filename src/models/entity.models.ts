@@ -42,24 +42,10 @@ export interface IRoadNode {
     id: string;
     startNode: INode;
     endNode: INode;
+    length: number;
 }
 
-export interface ICar {
-    id: string;
-    color: string;
-    road: IRoadNode;
-    direction: 1 | -1;
-    t: number;
-    speed: number;
-    targetSpeed: number;
-    velocity: number;
-    waiting: boolean;
-    x: number;
-    y: number;
-    angle: number;
-}
-
-export class Car implements ICar {
+export class Car {
     public id: string;
     public color: string;
     public targetSpeed: number;
@@ -69,19 +55,17 @@ export class Car implements ICar {
     public y: number;
     public angle: number;
 
-    public waitingFor: 'light' | 'car' | null = null;
-
     constructor(
         public road: IRoadNode,
-        public direction: 1 | -1,
-        public t: number,
+        public direction: number, // 1 | -1
+        public movingProgress: number, // 1 = start of the road, 0 = end of the road
         public speed: number,
     ) {
         this.id = uuid();
         this.color = `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
         this.road = road;
         this.direction = direction;
-        this.t = t;
+        this.movingProgress = movingProgress;
         this.speed = speed;
         this.targetSpeed = speed;
         this.velocity = 0;

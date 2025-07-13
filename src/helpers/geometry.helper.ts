@@ -6,7 +6,7 @@ export class GeometryHelper {
     }
 
     public static getDistance(a: IPoint, b: IPoint): number {
-        return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+        return Math.hypot(a.x - b.x, a.y - b.y);
     }
 
     public static getSecondaryCoordinatesAtRightAngle(start: IPoint, target: IPoint): IPoint {
