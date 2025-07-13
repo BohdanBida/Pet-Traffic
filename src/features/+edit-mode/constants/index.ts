@@ -1,0 +1,1 @@
+export const EDIT_MODE_TRAFFIC_LIGHT_SPEED = 500;

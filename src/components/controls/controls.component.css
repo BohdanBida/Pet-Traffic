@@ -1,0 +1,37 @@
+.controls-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+}
+
+.example-btn {
+    background-size: 32px;
+    background-position: 10% 50%;
+    padding-left: 64px;
+    background-repeat: no-repeat;
+    background-image: url('@assets/example.svg');
+}
+
+.mode-btn {
+    width: 48px;
+    background-size: 75%;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+}
+
+.mode-btn.simulation-mode {
+    background-image: url('@assets/architect.svg');
+}
+
+.mode-btn.edit-mode {
+    background-image: url('@assets/play.svg');
+}
+
+.clear-btn {
+    padding-right: 64px;
+    background-size: 38px;
+    background-position: 90% 50%;
+    background-repeat: no-repeat;
+    background-image: url('@assets/demolish.svg');
+}

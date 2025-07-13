@@ -1,0 +1,33 @@
+.mouse-coordinates-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    width: max-content;
+    height: 28px;
+    padding: 0 1rem;
+
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border: 1px solid var(--main-border-color);
+    border-bottom: none;
+
+    margin-bottom: -10px;
+
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+}
+
+.mouse-coordinates-container .label {
+    display: flex;
+    justify-content: center;
+}
+
+.mouse-coordinates-container .value {
+    width: 6rem;
+}
+
+.adjust-by-objects {
+    color: var(--main-border-color);
+}
