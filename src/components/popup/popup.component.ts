@@ -23,6 +23,12 @@ export class PopupComponent<R> extends Component<HTMLDivElement> {
 
         document.body.appendChild(element);
 
+        document.onkeydown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' || event.key === 'Enter') {
+                this.close();
+            }
+        };
+
         return this._result$.pipe(skip(1));
     }
 

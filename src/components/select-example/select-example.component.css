@@ -1,6 +1,6 @@
 .select-example-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
 }
 
@@ -27,4 +27,65 @@
 
 .select-example-text {
     margin: auto;
+}
+
+.select-example-file {
+    position: relative;
+    color: transparent;
+    width: 192px;
+    height: 192px;
+    margin: auto;
+    grid-column: -1;
+}
+
+.select-example-file::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+.select-example-file::before {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    content: "";
+
+    background-image: url('@assets/upload.svg');
+    background-position: center;
+    background-size: 40%;
+    background-repeat: no-repeat;
+
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+
+    border-width: 2px;
+
+    background-color: #eee;
+    cursor: pointer;
+    border: #666 solid 2px;
+    border-radius: 8px;
+
+    color: black;
+    outline: none;
+}
+
+.select-example-file::after {
+    position: absolute;
+    bottom: 20px;
+    content: "Upload Custom Map";
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: system-ui;
+    font-size: 1rem;
+    color: black;
+}
+
+.select-example-file:hover::before {
+    border-color: var(--main-border-color);
+}
+
+.select-example-file:active {
+    outline: 0;
 }

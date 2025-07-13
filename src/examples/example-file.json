@@ -1,10 +1,7 @@
-import { IExampleData } from '@app/models';
-
-export const EXAMPLE_MAP_STATE1: IExampleData = {
-    name: "First Meet",
-    imageName: "1.jpg",
-    state: {
-        roads: [
+{
+    "name": "Example File",
+    "state": {
+        "roads": [
             {
                 "id": "d7d6354a-4f65-447c-9197-c0ff701c3112",
                 "start": {
@@ -214,6 +211,6 @@ export const EXAMPLE_MAP_STATE1: IExampleData = {
                     "y": 92
                 }
             }
-        ],
-    },
+        ]
+    }
 }

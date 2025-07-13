@@ -55,7 +55,7 @@ export class LogPanelComponent extends Component<HTMLDivElement> {
       children: [
         HTMLHelper.createElement({
           tagName: 'h2',
-          textContent: 'Logs',
+          textContent: 'Application Logs',
         }),
         dropdown,
         clearButton,

@@ -4,7 +4,7 @@ export const EXAMPLE_MAP_STATE2: IExampleData = {
     name: "Simple Crossroad",
     imageName: "2.jpg",
     state: {
-        "roads": [
+        roads: [
             {
                 "id": "08de3327-40bd-4cf3-9f4c-a2c77dc2adb9",
                 "start": {
@@ -50,21 +50,5 @@ export const EXAMPLE_MAP_STATE2: IExampleData = {
                 }
             }
         ],
-        "turns": [],
-        "crossroads": [
-            {
-                "x": 50,
-                "y": 50,
-                "connectedSides": {
-                    "top": true,
-                    "bottom": true,
-                    "left": true,
-                    "right": true
-                },
-                "number": 1,
-                "verticalLightId": 0,
-                "horizontalLightId": 0
-            }
-        ]
     },
 }

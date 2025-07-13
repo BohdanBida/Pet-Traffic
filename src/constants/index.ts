@@ -9,7 +9,7 @@ export const ROAD_WIDTH = CELL_SIZE * 5;
 export const MIN_MARGIN_TO_BOUNDARY = CELL_SIZE * 4;
 export const MIN_ROAD_DISTANCE = CELL_SIZE * 2;
 
-export const ROAD_COLOR = `rgba(98, 98, 98)`
+export const ROAD_COLOR = `rgba(98, 98, 98)`;
 export const ROAD_PAINT_COLOR = '#eee';
 export const INVALID_ROAD_COLOR = `rgba(256, 98, 98)`;
 
@@ -28,5 +28,5 @@ export const NOTIFICATION_CACHE_OPTIONS: IDropdownOption<NotificationCacheOption
     { value: NotificationCacheOptions.Last25, label: 'Show last 25', selected: true },
     { value: NotificationCacheOptions.Last50, label: 'Show last 50' },
     { value: NotificationCacheOptions.Last100, label: 'Show last 100' },
-    { value: NotificationCacheOptions.All, label: 'Show All' }
+    { value: NotificationCacheOptions.All, label: 'Show All' },
 ];

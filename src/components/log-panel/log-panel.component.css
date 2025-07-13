@@ -23,14 +23,6 @@
     background-color: var(--main-header-color);
 }
 
-.events-container header button {
-    height: 32px;
-    width: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .events-container header h2 {
     margin-left: 3px;
     margin-right: auto;
@@ -38,6 +30,11 @@
 }
 
 .logs-clear-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    width: 38px;
     background-image: url('@assets/delete.svg');
     background-size: 24px;
     background-position: center;
