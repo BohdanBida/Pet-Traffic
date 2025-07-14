@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs';
 import { Component } from '../component';
 import { State } from '@app/state';
 import { HTMLHelper } from '@app/helpers';
-import { AppMode, IExampleData, UserActionEvent } from '@app/models';
+import { AppMode, ITemplateData, UserActionEvent } from '@app/models';
 import { UserEventsService } from '@app/core/services';
 
 @Injectable([State, UserEventsService, NotificationService])
@@ -21,8 +21,8 @@ export class ControlsComponent extends Component<HTMLDivElement> {
     const exampleButton = HTMLHelper.createElement<HTMLButtonElement>({
       tagName: 'button',
       className: 'example-btn',
-      textContent: 'Example',
-      onClick: () => this._userEventService.sendActionEvent(UserActionEvent.SetExample),
+      textContent: 'Templates',
+      onClick: () => this._userEventService.sendActionEvent(UserActionEvent.SetTemplate),
     });
 
     const modeButton = HTMLHelper.createElement<HTMLButtonElement>({
@@ -88,7 +88,7 @@ export class ControlsComponent extends Component<HTMLDivElement> {
       return;
     }
 
-    const mapData: IExampleData = {
+    const mapData: ITemplateData = {
       name: `Map ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
       state: {
         roads: this._state.roads,

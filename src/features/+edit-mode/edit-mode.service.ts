@@ -1,11 +1,10 @@
 import { Subject, takeUntil } from 'rxjs';
 import { Injectable } from '@app/core/di';
-import { AppMode, IExampleData, IRoad, UserActionEvent } from '@app/models';
+import { AppMode, ITemplateData, IRoad, UserActionEvent } from '@app/models';
 import { State } from '@app/state';
 import { RoadHelper } from '@app/helpers';
 import { UserEventsService } from '@app/core/services';
-import { RoadDrawnNotification, NotificationService, ExampleSelectedNotification } from '@app/notifications';
-import { EXAMPLE_MAP_STATE1 } from '@app/examples';
+import { RoadDrawnNotification, NotificationService, TemplateSelectedNotification } from '@app/notifications';
 import { StateHistoryManager } from '@app/core/history';
 import { v4 as uuid } from 'uuid';
 import { EditTrafficLightsManager } from './managers';
@@ -53,10 +52,10 @@ export class EditModeService {
         this._traffic.destroy();
     }
 
-    public setExample(example: IExampleData): void {
+    public setTemplate(template: ITemplateData): void {
         this._stateHistoryManager.save();
-        this._state.updateState(example.state);
-        this._notificationService.add(new ExampleSelectedNotification(example.name));
+        this._state.updateState(template.state);
+        this._notificationService.add(new TemplateSelectedNotification(template.name));
         this._setCrossroads();
     }
 

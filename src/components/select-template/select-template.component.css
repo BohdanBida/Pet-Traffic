@@ -25,6 +25,10 @@
     border-bottom: 1px solid #666;
 }
 
+.select-example-text.custom-name {
+    font-style: italic;
+}
+
 .select-example-text {
     margin: auto;
 }
@@ -83,7 +87,7 @@
 }
 
 .select-example-file:hover::before {
-    border-color: var(--main-border-color);
+    border-color: var(--main-active-color);
 }
 
 .select-example-file:active {

@@ -1,7 +1,7 @@
 export enum UserActionEvent {
     EnableEditMode,
     EnableSimulationMode,
-    SetExample,
+    SetTemplate,
     Clear,
     RoadAdded,
     RoadRemoved,

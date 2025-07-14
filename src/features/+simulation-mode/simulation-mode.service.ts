@@ -94,6 +94,7 @@ export class SimulationModeService {
         }
     }
 
+    // todo: move cars logic to manager
     private adjustVelocity(car: Car): void {
         const roadLength = car.road.length;
         const maxProgressPerTick = MAX_PX_PER_TICK / (roadLength * TICKS_PER_SECOND);

@@ -5,4 +5,4 @@ export * from './controls';
 export * from './log-panel';
 export * from './mouse-coordinates';
 export * from './popup';
-export * from './select-example';
+export * from './select-template';

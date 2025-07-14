@@ -1,8 +1,7 @@
-import { IExampleData } from '@app/models';
+import { ITemplateData } from '@app/models';
 
-export const EXAMPLE_MAP_STATE3: IExampleData = {
+export const EXAMPLE_MAP_STATE3: ITemplateData = {
     name: "Long Roads",
-    imageName: "3.jpg",
     state: {
         roads: [
             {

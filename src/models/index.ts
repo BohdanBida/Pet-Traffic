@@ -3,4 +3,4 @@ export * from './core.models';
 export * from './geometry.models';
 export * from './entity.models';
 export * from './ui.models';
-export * from './example-data';
+export * from './template-data';

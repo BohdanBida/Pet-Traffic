@@ -10,7 +10,7 @@
     border-radius: 5px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    border: 1px solid var(--main-border-color);
+    border: 1px solid var(--main-active-color);
     border-bottom: none;
 
     margin-bottom: -10px;
@@ -29,5 +29,5 @@
 }
 
 .adjust-by-objects {
-    color: var(--main-border-color);
+    color: var(--main-active-color);
 }

@@ -2,10 +2,10 @@ import { State } from '@app/state';
 import { Injectable } from '@app/core/di';
 import { UserEventsService } from '@app/core/services';
 import { StateHistoryManager } from '@app/core/history';
-import { PopupComponent, SelectExampleComponent } from '@app/components';
+import { PopupComponent, SelectTemplateComponent } from '@app/components';
 import { UserInteractionsHandlerService, MainRenderProcessService } from '@app/services';
 import { ClearNotification, ModeChangedNotification, NotificationService } from '@app/notifications';
-import { AppMode, IExampleData, UserActionEvent } from './models';
+import { AppMode, ITemplateData, UserActionEvent } from './models';
 import { SimulationModeService } from './features/+simulation-mode/simulation-mode.service';
 import { EditModeService } from './features/+edit-mode/edit-mode.service';
 
@@ -44,16 +44,16 @@ export class App {
             this.clear();
         });
 
-        this._userEventService.onActionEvent(UserActionEvent.SetExample).subscribe(() => {
-            const popup = new PopupComponent<IExampleData>({
-                title: 'Select Example',
-                component: SelectExampleComponent,
+        this._userEventService.onActionEvent(UserActionEvent.SetTemplate).subscribe(() => {
+            const popup = new PopupComponent<ITemplateData>({
+                title: 'Select Template',
+                component: SelectTemplateComponent,
             });
 
-            popup.open().subscribe((example?: IExampleData) => {
+            popup.open().subscribe((example?: ITemplateData) => {
                 if (!example) return;
 
-                this._editModeService.setExample(example);
+                this._editModeService.setTemplate(example);
             });
         });
 
