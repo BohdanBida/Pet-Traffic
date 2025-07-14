@@ -9,6 +9,7 @@ import { AppMode, ITemplateData, UserActionEvent } from './models';
 import { SimulationModeService } from './features/+simulation-mode/simulation-mode.service';
 import { EditModeService } from './features/+edit-mode/edit-mode.service';
 
+// TODO: Refactor, split responsibilities
 @Injectable([
     State,
     StateHistoryManager,
