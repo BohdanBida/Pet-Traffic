@@ -3,13 +3,17 @@ import { HTMLHelper, JsonValidationHelper } from '@app/helpers';
 import { BasePopupComponent } from '../base-popup-component';
 import { EXAMPLE_MAP_STATE1, EXAMPLE_MAP_STATE2, EXAMPLE_MAP_STATE3 } from '@app/examples';
 
+const LAST_FILE_KEY = 'lastUploadedTemplate';
+
 export class SelectExampleComponent extends BasePopupComponent<IExampleData> {
+
     protected createElement(): HTMLDivElement {
         return HTMLHelper.createElement<HTMLDivElement>({
             tagName: 'div',
             className: 'select-example-container',
             children: [
                 ...this._getExampleOptions(),
+                this._getLastSelectedFileOption(),
                 this._getInputElement(),
             ],
         });
@@ -67,11 +71,16 @@ export class SelectExampleComponent extends BasePopupComponent<IExampleData> {
 
             try {
                 json = JSON.parse(reader.result as string);
-            } catch (error) {
+            } catch {
                 throw new Error('Parsing Failed: Invalid JSON format');
             }
 
             JsonValidationHelper.validate(json);
+
+            localStorage.setItem(
+                LAST_FILE_KEY,
+                JSON.stringify(json)
+            );
 
             this.close(json);
         };
@@ -82,4 +91,32 @@ export class SelectExampleComponent extends BasePopupComponent<IExampleData> {
 
         reader.readAsText(file);
     }
+
+    private _getLastSelectedFileOption(): HTMLButtonElement {
+        const raw = localStorage.getItem(LAST_FILE_KEY);
+
+        let data: IExampleData | null = null;
+
+        try {
+            if (raw) {
+                data = JSON.parse(raw);
+            }
+        } catch {
+            data = null;
+        }
+
+        return HTMLHelper.createElement<HTMLButtonElement>({
+            tagName: 'button',
+            className: 'select-example-button',
+            onClick: () => data && this.close(data),
+            children: [
+                HTMLHelper.createElement<HTMLSpanElement>({
+                    tagName: 'span',
+                    className: 'select-example-text',
+                    textContent: data ? 'Load last uploaded file' : 'No last uploaded file',
+                }),
+            ],
+        });
+    }
+
 }
