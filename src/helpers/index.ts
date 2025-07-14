@@ -1,3 +1,4 @@
+export * from './file.helper';
 export * from './geometry.helper';
 export * from './html.helper';
 export * from './json-validation.helper';

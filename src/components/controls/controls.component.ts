@@ -3,7 +3,7 @@ import { Injectable } from '@app/core/di';
 import { takeUntil } from 'rxjs';
 import { Component } from '../component';
 import { State } from '@app/state';
-import { HTMLHelper } from '@app/helpers';
+import { FileHelper, HTMLElementBuilder } from '@app/helpers';
 import { AppMode, ITemplateData, UserActionEvent } from '@app/models';
 import { UserEventsService } from '@app/core/services';
 
@@ -18,37 +18,10 @@ export class ControlsComponent extends Component<HTMLDivElement> {
   }
 
   protected createElement(): HTMLDivElement {
-    const exampleButton = HTMLHelper.createElement<HTMLButtonElement>({
-      tagName: 'button',
-      className: 'example-btn',
-      textContent: 'Templates',
-      onClick: () => this._userEventService.sendActionEvent(UserActionEvent.SetTemplate),
-    });
-
-    const modeButton = HTMLHelper.createElement<HTMLButtonElement>({
-      tagName: 'button',
-      className: 'mode-btn edit-mode',
-      onClick: () => {
-        const mode = this._getNextMode();
-
-        const eventType = mode === AppMode.Edit ? UserActionEvent.EnableEditMode : UserActionEvent.EnableSimulationMode;
-        this._userEventService.sendActionEvent(eventType);
-      }
-    });
-
-    const clearButton = HTMLHelper.createElement<HTMLButtonElement>({
-      tagName: 'button',
-      className: 'clear-btn',
-      textContent: 'Clear',
-      onClick: () => this._userEventService.sendActionEvent(UserActionEvent.Clear),
-    });
-
-    const saveButton = HTMLHelper.createElement<HTMLButtonElement>({
-      tagName: 'button',
-      className: 'save-btn',
-      textContent: 'Save',
-      onClick: () => this._saveMap(),
-    });
+    const saveButton = this._createSaveButton();
+    const exampleButton = this._createTemplatesButton();
+    const modeButton = this._createModeButton();
+    const clearButton = this._createClearButton();
 
     this._state.mode$
       .pipe(takeUntil(this.destroy$))
@@ -63,16 +36,61 @@ export class ControlsComponent extends Component<HTMLDivElement> {
         saveButton.disabled = !isEdit;
       });
 
-    return HTMLHelper.createElement<HTMLDivElement>({
-      tagName: 'div',
-      className: 'controls-container',
-      children: [
+    return new HTMLElementBuilder('div')
+      .setClass('controls-container')
+      .setChildren([
         saveButton,
         exampleButton,
         modeButton,
         clearButton,
-      ],
-    });
+      ])
+      .build();
+  }
+
+  private _createSaveButton(): HTMLButtonElement {
+    return new HTMLElementBuilder('button')
+      .setClass('save-btn')
+      .setText('Save')
+      .onClick(() => this._onSave())
+      .build();
+  }
+
+  private _createTemplatesButton(): HTMLButtonElement {
+    return new HTMLElementBuilder('button')
+      .setClass('example-btn')
+      .setText('Templates')
+      .onClick(() => this._onSetTemplate())
+      .build();
+  }
+
+  private _createModeButton(): HTMLButtonElement {
+    return new HTMLElementBuilder('button')
+      .setClass('mode-btn edit-mode')
+      .onClick(() => this._onChangeMode())
+      .build();
+  }
+
+
+  private _createClearButton(): HTMLButtonElement {
+    return new HTMLElementBuilder('button')
+      .setClass('clear-btn')
+      .setText('Clear')
+      .onClick(() => this._onClear())
+      .build();
+  }
+
+  private _onSetTemplate(): void {
+    this._userEventService.sendActionEvent(UserActionEvent.SetTemplate)
+  }
+
+  private _onChangeMode(): void {
+    const mode = this._getNextMode();
+    const eventType =
+      mode === AppMode.Edit
+        ? UserActionEvent.EnableEditMode
+        : UserActionEvent.EnableSimulationMode;
+
+    this._userEventService.sendActionEvent(eventType);
   }
 
   private _getNextMode(): AppMode {
@@ -81,10 +99,15 @@ export class ControlsComponent extends Component<HTMLDivElement> {
     return currentMode === AppMode.Edit ? AppMode.Simulation : AppMode.Edit;
   }
 
-  private _saveMap(): void {
-    if (this._state.roads.length === 0) {
-      this._notificationService.add(new ErrorNotification('Cannot save empty map'));
+  private _onClear(): void {
+    this._userEventService.sendActionEvent(UserActionEvent.Clear)
+  }
 
+  private _onSave(): void {
+    if (this._state.roads.length === 0) {
+      this._notificationService.add(
+        new ErrorNotification('Cannot save empty map')
+      );
       return;
     }
 
@@ -92,18 +115,9 @@ export class ControlsComponent extends Component<HTMLDivElement> {
       name: `Map ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
       state: {
         roads: this._state.roads,
-      }
+      },
     };
 
-    const blob = new Blob([JSON.stringify(mapData)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'traffic-system-map.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    FileHelper.saveFile(mapData, 'traffic-system-map.json');
   }
 }

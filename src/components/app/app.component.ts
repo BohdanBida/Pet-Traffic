@@ -1,4 +1,4 @@
-import { HTMLHelper } from '@app/helpers';
+import { HTMLElementBuilder } from '@app/helpers';
 import { Injectable } from '@app/core/di';
 import { App } from 'app';
 import { Component } from '../component';
@@ -23,20 +23,19 @@ export class AppComponent extends Component<HTMLDivElement> {
     protected createElement(): HTMLDivElement {
         const components = [
             this._logPanel.getElement(),
-            HTMLHelper.createElement<HTMLDivElement>({
-                tagName: 'div',
-                className: 'canvas-container',
-                children: [
+            new HTMLElementBuilder('div')
+                .setClass('canvas-container')
+                .setChildren([
                     this._mouseCoords.getElement(),
                     this._canvas,
-                    this._controls.getElement()],
-            }),
+                    this._controls.getElement()
+                ])
+                .build(),
         ];
 
-        return HTMLHelper.createElement<HTMLDivElement>({
-            tagName: 'div',
-            className: 'app-container',
-            children: components,
-        });
+        return new HTMLElementBuilder('div')
+            .setClass('app-container')
+            .setChildren(components)
+            .build();
     }
 }

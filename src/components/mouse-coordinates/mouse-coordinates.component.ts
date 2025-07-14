@@ -2,7 +2,7 @@ import { UserInputService } from '@app/core/services';
 import { Injectable } from '@app/core/di';
 import { Component } from '../component';
 import { State } from '@app/state';
-import { HTMLHelper } from '@app/helpers';
+import { HTMLElementBuilder } from '@app/helpers';
 import { IPoint } from '@app/models';
 import { takeUntil } from 'rxjs';
 
@@ -16,17 +16,8 @@ export class MouseCoordinatesComponent extends Component<HTMLSpanElement> {
   }
 
   protected createElement(): HTMLSpanElement {
-    const label = HTMLHelper.createElement<HTMLSpanElement>({
-      tagName: 'span',
-      className: 'label'
-    });
-    label.textContent = 'Mouse Coordinates: ';
-
-    const valueElement = HTMLHelper.createElement<HTMLSpanElement>({
-      tagName: 'span',
-      className: 'value',
-      textContent: this._getValue(null)
-    });
+    const labelElement = this._createLabelElement();
+    const valueElement = this._createValueElement();
 
     this._userInputService.mousePosition$
       .pipe(takeUntil(this.destroy$))
@@ -40,14 +31,27 @@ export class MouseCoordinatesComponent extends Component<HTMLSpanElement> {
         valueElement.classList.toggle('adjust-by-objects', value);
       });
 
-    return HTMLHelper.createElement<HTMLSpanElement>({
-      tagName: 'span',
-      className: 'mouse-coordinates-container',
-      children: [label, valueElement]
-    });
+    return new HTMLElementBuilder('span')
+      .setClass('mouse-coordinates-container')
+      .setChildren([labelElement, valueElement])
+      .build();
+  }
+
+  private _createLabelElement(): HTMLSpanElement {
+    return new HTMLElementBuilder('span')
+      .setClass('label')
+      .setText('Mouse Coordinates: ')
+      .build();
+  }
+
+  private _createValueElement(): HTMLSpanElement {
+    return new HTMLElementBuilder('span')
+      .setClass('value')
+      .setText(this._getValue(null))
+      .build();
   }
 
   private _getValue(point: IPoint | null): string {
-    return point ? `(${point.x}, ${point.y})` : 'N/A'
+    return point ? `(${point.x}, ${point.y})` : 'N/A';
   }
 }

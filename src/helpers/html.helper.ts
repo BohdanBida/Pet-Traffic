@@ -1,47 +1,62 @@
-export interface ICreateElementPayload {
-    tagName: string;
-    className?: string;
-    textContent?: string;
-    children?: HTMLElement | HTMLElement[];
-    onClick?: (event: MouseEvent) => void;
-    onChange?: (event: Event) => void;
+interface HTMLElementTagNameMap {
+    div: HTMLDivElement;
+    span: HTMLSpanElement;
+    button: HTMLButtonElement;
+    input: HTMLInputElement;
+    canvas: HTMLCanvasElement;
+    select: HTMLSelectElement;
+    option: HTMLOptionElement;
+    ul: HTMLUListElement;
+    li: HTMLLIElement;
+    header: HTMLHeadElement;
+    h1: HTMLHeadingElement;
+    h2: HTMLHeadingElement;
+    h3: HTMLHeadingElement;
 }
 
-export class HTMLHelper {
-    public static createElement<T extends HTMLElement>({
-        tagName,
-        className,
-        textContent,
-        children,
-        onClick,
-        onChange,
-    }: ICreateElementPayload): T {
-        const element = document.createElement(tagName) as T;
+type TagName = keyof HTMLElementTagNameMap;
 
-        if (className) {
-            element.className = className;
+export class HTMLElementBuilder<K extends TagName> {
+    private element: HTMLElementTagNameMap[K];
+
+    constructor(tagName: K) {
+        this.element = document.createElement(tagName) as HTMLElementTagNameMap[K];
+    }
+
+    public setClass(className: string): this {
+        this.element.className = className;
+        return this;
+    }
+
+    public setText(text: string): this {
+        this.element.textContent = text;
+        return this;
+    }
+
+    public setChildren(children: HTMLElement | HTMLElement[]): this {
+        if (Array.isArray(children)) {
+            children.forEach(child => this.element.appendChild(child));
+        } else {
+            this.element.appendChild(children);
         }
+        return this;
+    }
 
-        if (textContent) {
-            element.textContent = textContent;
-        }
-
-        if (children) {
-            if (Array.isArray(children)) {
-                children.forEach(child => element.appendChild(child));
-            } else {
-                element.appendChild(children);
+    public onClick(handler: (event: MouseEvent) => void): this {
+        this.element.addEventListener('click', (e) => {
+            if (e instanceof MouseEvent) {
+                handler(e);
             }
-        }
+        });
+        return this;
+    }
 
-        if (onClick) {
-            element.addEventListener('click', onClick);
-        }
+    public onChange(handler: (event: Event) => void): this {
+        this.element.addEventListener('change', handler);
+        return this;
+    }
 
-        if (onChange) {
-            element.addEventListener('change', onChange);
-        }
-
-        return element;
+    public build(): HTMLElementTagNameMap[K] {
+        return this.element;
     }
 }

@@ -1,11 +1,10 @@
 import { Injectable } from '@app/core/di';
 import { takeUntil } from 'rxjs';
 import { BaseAppNotification, NotificationService } from '@app/notifications';
-import { HTMLHelper } from '@app/helpers';
+import { HTMLElementBuilder } from '@app/helpers';
 import { NOTIFICATION_CACHE_OPTIONS } from '@app/constants';
 import { IDropdownOption } from '@app/models';
 import { Component } from '../component';
-
 
 @Injectable([NotificationService])
 export class LogPanelComponent extends Component<HTMLDivElement> {
@@ -16,114 +15,102 @@ export class LogPanelComponent extends Component<HTMLDivElement> {
   }
 
   protected createElement(): HTMLDivElement {
-    const listElement = HTMLHelper.createElement<HTMLUListElement>({
-      tagName: 'ul',
-      className: 'events-list'
-    });
+    const listElement = this._createEventsList();
 
     this._notificationService.events$
       .pipe(takeUntil(this.destroy$))
       .subscribe((events: BaseAppNotification[]) => {
         listElement.innerHTML = '';
-
         events.forEach(event => {
-          listElement.appendChild(this._getEventItemElement(event));
+          listElement.appendChild(this._createEventItem(event));
         });
       });
 
-    return HTMLHelper.createElement<HTMLDivElement>({
-      tagName: 'div',
-      className: 'events-container',
-      children: [
-        this._getHeaderElement(),
-        listElement
-      ],
-    });
+    return new HTMLElementBuilder('div')
+      .setClass('events-container')
+      .setChildren([
+        this._createHeader(),
+        listElement,
+      ])
+      .build();
   }
 
-  private _getHeaderElement(): HTMLHeadElement {
-    const dropdown = this._getCacheSizeDropdown();
-
-    const clearButton = HTMLHelper.createElement<HTMLButtonElement>({
-      tagName: 'button',
-      className: 'logs-clear-button',
-      onClick: () => this._notificationService.clear(),
-    });
-
-    return HTMLHelper.createElement<HTMLHeadElement>({
-      tagName: 'header',
-      children: [
-        HTMLHelper.createElement({
-          tagName: 'h2',
-          textContent: 'Application Logs',
-        }),
-        dropdown,
-        clearButton,
-      ],
-    });
+  private _createHeader(): HTMLElement {
+    return new HTMLElementBuilder('header')
+      .setChildren([
+        new HTMLElementBuilder('h2')
+          .setText('Application Logs')
+          .build(),
+        this._createCacheSizeDropdown(),
+        this._createClearButton(),
+      ])
+      .build();
   }
 
-  private _getCacheSizeDropdown(): HTMLSelectElement {
+  private _createClearButton(): HTMLButtonElement {
+    return new HTMLElementBuilder('button')
+      .setClass('logs-clear-button')
+      .onClick(() => this._onClear())
+      .build();
+  }
+
+  private _createCacheSizeDropdown(): HTMLSelectElement {
     const options: HTMLOptionElement[] = NOTIFICATION_CACHE_OPTIONS.map(
-      this._getDropdownOption.bind(this),
-    )
+      this._createDropdownOption.bind(this),
+    );
 
-    const dropdown = HTMLHelper.createElement<HTMLSelectElement>({
-      tagName: 'select',
-      className: 'cache-size-select',
-      children: options,
-      onChange: (e: Event) => {
+    return new HTMLElementBuilder('select')
+      .setClass('cache-size-select')
+      .setChildren(options)
+      .onChange((e) => {
         const value = parseInt((e.target as HTMLSelectElement).value, 10);
-
         this._notificationService.setCacheSize(value);
-      }
-    });
-
-    return dropdown;
+      })
+      .build();
   }
 
-  private _getDropdownOption({
-    value,
-    label,
-    selected,
-  }: IDropdownOption<number>): HTMLOptionElement {
-    const option = HTMLHelper.createElement<HTMLOptionElement>({
-      tagName: 'option',
-      textContent: label,
-    });
+  private _createDropdownOption(optionData: IDropdownOption<number>): HTMLOptionElement {
+    const option = new HTMLElementBuilder('option')
+      .setText(optionData.label)
+      .build();
 
-    option.value = value.toString();
-    option.selected = selected ?? false;
+    option.value = optionData.value.toString();
+    option.selected = optionData.selected ?? false;
 
     return option;
   }
 
+  private _createEventsList(): HTMLUListElement {
+    return new HTMLElementBuilder('ul')
+      .setClass('events-list')
+      .build();
+  }
 
-  private _getEventItemElement(event: BaseAppNotification): HTMLLIElement {
-    const indicator = HTMLHelper.createElement<HTMLDivElement>({
-      tagName: 'div',
-      className: `event-indicator event-${event.type}`,
-    });
+  private _createEventItem(event: BaseAppNotification): HTMLLIElement {
+    const indicator = new HTMLElementBuilder('div')
+      .setClass(`event-indicator event-${event.type}`)
+      .build();
 
-    const timestamp = HTMLHelper.createElement<HTMLSpanElement>({
-      tagName: 'span',
-      className: 'timestamp',
-      textContent: event.timestamp,
-    });
+    const timestamp = new HTMLElementBuilder('span')
+      .setClass('timestamp')
+      .setText(event.timestamp)
+      .build();
 
-    const message = HTMLHelper.createElement<HTMLSpanElement>({
-      tagName: 'span',
-      textContent: event.message,
-    });
+    const message = new HTMLElementBuilder('span')
+      .setText(event.message)
+      .build();
 
-    return HTMLHelper.createElement<HTMLLIElement>({
-      tagName: 'li',
-      className: 'event-item',
-      children: [
+    return new HTMLElementBuilder('li')
+      .setClass('event-item')
+      .setChildren([
         indicator,
         timestamp,
         message,
-      ],
-    });
+      ])
+      .build();
+  }
+
+  private _onClear(): void {
+    this._notificationService.clear();
   }
 }
