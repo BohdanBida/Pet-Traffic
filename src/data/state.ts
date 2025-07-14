@@ -19,14 +19,6 @@ export class State {
 
     public cars: Car[] = [];
 
-    public createSnapshot(): StateSnapshot {
-        return new StateSnapshot(
-            structuredClone(this.roads),
-            structuredClone(this.crossroads),
-            structuredClone(this.turns)
-        );
-    }
-
     public restoreSnapshot(snapshot: StateSnapshot): void {
         this.roads = structuredClone(snapshot.roads);
         this.crossroads = structuredClone(snapshot.crossroads);
