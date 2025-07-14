@@ -4,16 +4,16 @@ import { App } from 'app';
 import { Component } from '../component';
 import { ControlsComponent } from '../controls';
 import { LogPanelComponent } from '../log-panel';
-import { MouseCoordinatesComponent } from '../mouse-coordinates';
+import { InfoPanelComponent } from '../info-panel';
 
-@Injectable([App, HTMLCanvasElement, ControlsComponent, LogPanelComponent, MouseCoordinatesComponent])
+@Injectable([App, HTMLCanvasElement, ControlsComponent, LogPanelComponent, InfoPanelComponent])
 export class AppComponent extends Component<HTMLDivElement> {
     constructor(
         private readonly _app: App,
         private readonly _canvas: HTMLCanvasElement,
         private readonly _controls: ControlsComponent,
         private readonly _logPanel: LogPanelComponent,
-        private readonly _mouseCoords: MouseCoordinatesComponent,
+        private readonly _infoPanel: InfoPanelComponent,
     ) {
         super();
 
@@ -26,7 +26,7 @@ export class AppComponent extends Component<HTMLDivElement> {
             new HTMLElementBuilder('div')
                 .setClass('canvas-container')
                 .setChildren([
-                    this._mouseCoords.getElement(),
+                    this._infoPanel.getElement(),
                     this._canvas,
                     this._controls.getElement()
                 ])

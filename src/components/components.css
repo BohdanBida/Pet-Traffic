@@ -1,5 +1,5 @@
 @import './app/app.component.css';
-@import './mouse-coordinates/mouse-coordinates.component.css';
+@import './info-panel/info-panel.component.css';
 @import './controls/controls.component.css';
 @import './log-panel/log-panel.component.css';
 @import './select-template/select-template.component.css';

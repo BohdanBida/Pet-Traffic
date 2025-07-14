@@ -7,6 +7,8 @@ export class State {
     
     public adjustByObjectsMode$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+    public fps$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+
     public inProgressRoad: IPoint | null = null;
 
     public validationStatus: ValidationStatus = ValidationStatus.Valid;

@@ -44,8 +44,11 @@ npm run dev
 
 - [ ] **Refactor `App` class** to follow Single Responsibility Principle
 - [ ] **Add tests** using Jest
-- [ ] Abstract canvas drawing with a basic **virtual rendering system**
 - [ ] Add **unit-tested utility functions** and mocks for simulations
+- [ ] Abstract canvas drawing with a basic **virtual rendering system**
 - [ ] Add **performance profiler panel** (FPS, frame time, object count)
+- [ ] Improvements and new features for simulation mode (animations, single traffic lights, multilane movement, bigger map with zoom)
+- [ ] Improvements for edit mode (road splitting, new objects)
+- [ ] Realtime adjustment of traffic light switching time dependent on the load of roads
 
 ---
