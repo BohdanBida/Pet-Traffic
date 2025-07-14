@@ -1,22 +1,21 @@
-import { MAX_PX_PER_TICK } from './constants/index';
 import { Injectable } from '@app/core/di';
-import {
-    ACCELERATION,
-    CAR_LENGTH,
-    CARS_AMOUNT,
-    CROSSROAD_STOP_DISTANCE,
-    DECELERATION,
-    LANE_OFFSET,
-    SAFE_DISTANCE,
-} from './constants';
 import { State } from '@app/state';
-import { AppMode, INode, IRoadNode, Car } from '@app/models';
+import { AppMode, INode, IRoadNode } from '@app/models';
 import { SimulationModeHelper } from './helpers';
-import { TrafficLightsManager } from './managers';
 import { TickService } from '@app/core/services';
-import { TICKS_PER_SECOND } from '@app/constants';
+import {
+    TrafficLightsManager, CarFactory, CarMovementManager,
+    TrafficInteractionManager
+} from './services';
 
-@Injectable([State, TrafficLightsManager, TickService])
+@Injectable([
+    State,
+    TickService,
+    TrafficLightsManager,
+    CarFactory,
+    CarMovementManager,
+    TrafficInteractionManager,
+])
 export class SimulationModeService {
     public simNodes: INode[] = [];
 
@@ -24,8 +23,11 @@ export class SimulationModeService {
 
     constructor(
         private readonly _state: State,
-        private readonly _traffic: TrafficLightsManager,
         private readonly _tickService: TickService,
+        private readonly _traffic: TrafficLightsManager,
+        private readonly _carFactory: CarFactory,
+        private readonly _carMovementManager: CarMovementManager,
+        private readonly _trafficInteractionManager: TrafficInteractionManager,
     ) { }
 
     public run(): void {
@@ -37,7 +39,7 @@ export class SimulationModeService {
 
         this._traffic.start(this.simNodes);
 
-        this.init();
+        this._carFactory.initCars(this._state, this.simRoads);
 
         this._tickService.start().subscribe(() => this.step());
     }
@@ -54,221 +56,17 @@ export class SimulationModeService {
         this.simRoads = simRoads;
     }
 
-    public init(): void {
-        this._state.cars = [];
-        const usedSpots = new Map<string, number[]>();
-        let created = 0;
-        let attempts = 0;
-
-        while (created < CARS_AMOUNT && attempts < CARS_AMOUNT * 10) {
-            attempts++;
-            const road = this.simRoads[Math.floor(Math.random() * this.simRoads.length)];
-            const direction = Math.random() > 0.5 ? 1 : -1;
-            const movingProgress = direction === 1 ? 0 : 1;
-
-            if (this.isSpotTaken(road.id, movingProgress, usedSpots)) continue;
-
-            const speed = Math.random() * 0.001 + 0.004;
-            const car = new Car(road, direction, movingProgress, speed);
-
-            this.updateCarPosition(car);
-            this._state.cars.push(car);
-            created++;
-            this.registerSpot(road.id, movingProgress, usedSpots);
-        }
-    }
-
     public step(): void {
         for (const car of this._state.cars) {
-            if (this.shouldWaitForLight(car)) continue;
-            if (!this.isSafeToProceed(car)) {
+            if (this._trafficInteractionManager.shouldWaitForLight(car)) continue;
+
+            if (!this._trafficInteractionManager.isSafeToProceed(car)) {
                 car.targetSpeed = 0;
             } else {
                 car.targetSpeed = car.speed;
             }
 
-            this.adjustVelocity(car);
-            this.advanceCar(car);
-            this.updateCarPosition(car);
+            this._carMovementManager.step(car);
         }
-    }
-
-    // todo: move cars logic to manager
-    private adjustVelocity(car: Car): void {
-        const roadLength = car.road.length;
-        const maxProgressPerTick = MAX_PX_PER_TICK / (roadLength * TICKS_PER_SECOND);
-        const cappedTargetSpeed = Math.min(car.targetSpeed, maxProgressPerTick);
-
-        if (car.velocity < cappedTargetSpeed) {
-            car.velocity = Math.min(car.velocity + ACCELERATION, cappedTargetSpeed);
-        } else if (car.velocity > cappedTargetSpeed) {
-            car.velocity = Math.max(car.velocity - DECELERATION, cappedTargetSpeed);
-        }
-    }
-
-    private advanceCar(car: Car): void {
-        const earlyTurnZone = 0.9;
-        const isNearEnd = car.direction === 1 ? car.movingProgress >= earlyTurnZone : car.movingProgress <= 1 - earlyTurnZone;
-
-        if (!car.nextRoad && isNearEnd) {
-            const node = car.direction === 1 ? car.road.endNode : car.road.startNode;
-            const options = node.connectedRoads.filter(r => r !== car.road);
-
-            for (const next of options) {
-                const { direction, movingProgress } = this.getDirectionForNextRoad(node, next);
-                const isBlocked = this._state.cars.some(other =>
-                    other.road === next &&
-                    other.direction === direction &&
-                    Math.abs(other.movingProgress - movingProgress) < (CAR_LENGTH + SAFE_DISTANCE) / next.length
-                );
-
-                if (!isBlocked) {
-                    car.nextRoad = next;
-                    car.nextDirection = direction;
-                    car.nextProgress = movingProgress;
-                    break;
-                }
-            }
-        }
-
-        const isAtEnd = car.direction === 1 ? car.movingProgress >= 1 : car.movingProgress <= 0;
-        if (isAtEnd) {
-            if (car.nextRoad) {
-                car.road = car.nextRoad;
-                car.direction = car.nextDirection!;
-                car.movingProgress = car.nextProgress!;
-                car.targetSpeed = car.speed;
-                car.nextRoad = undefined;
-                car.nextDirection = undefined;
-                car.nextProgress = undefined;
-            } else {
-                const reverseDir = -car.direction;
-                const reverseProgress = car.movingProgress <= 0 ? 0 : 1;
-                const isBlocked = this._state.cars.some(other =>
-                    other !== car &&
-                    other.road === car.road &&
-                    other.direction === reverseDir &&
-                    Math.abs(other.movingProgress - reverseProgress) < (CAR_LENGTH + SAFE_DISTANCE) / car.road.length
-                );
-
-                if (!isBlocked) {
-                    car.direction = reverseDir;
-                    car.movingProgress = reverseProgress;
-                    car.targetSpeed = car.speed;
-                } else {
-                    car.targetSpeed = 0;
-                }
-            }
-            return;
-        }
-
-        car.movingProgress += car.velocity * car.direction;
-        car.movingProgress = Math.max(0, Math.min(1, car.movingProgress));
-    }
-
-    private shouldWaitForLight(car: Car): boolean {
-        const road = car.road;
-        const node = car.direction === 1 ? road.endNode : road.startNode;
-
-        const dx = road.endNode.x - road.startNode.x;
-        const isCrossroad = node.connectedRoads.length >= 3;
-        const distanceToNode = this.getDistanceToNode(car);
-        const isHorizontal = dx !== 0;
-        const lightId = isHorizontal ? node.horizontalLightId : node.verticalLightId;
-        const isRed = lightId === 2;
-        const isYellow = lightId === 1;
-
-        const isApproaching = distanceToNode <= CROSSROAD_STOP_DISTANCE;
-        const isInside = distanceToNode < (CAR_LENGTH + SAFE_DISTANCE * 2);
-
-
-        if (car.waiting) {
-            if (lightId === 0 && this.isSafeToProceed(car)) {
-                car.waiting = false;
-                car.targetSpeed = car.speed;
-            } else {
-                car.velocity = 0;
-                this.updateCarPosition(car);
-                return true;
-            }
-        }
-
-        if (!car.waiting && isCrossroad) {
-            if ((isRed || (isYellow && !isInside)) && isApproaching) {
-                car.waiting = true;
-                car.velocity = 0;
-                car.targetSpeed = car.speed;
-                this.updateCarPosition(car);
-                return true;
-            } else if (isYellow && isApproaching && !isInside) {
-                car.targetSpeed = 0;
-            }
-        }
-
-        return false;
-    }
-
-    private updateCarPosition(car: Car): void {
-        const { road, movingProgress } = car;
-        const dx = road.endNode.x - road.startNode.x;
-        const dy = road.endNode.y - road.startNode.y;
-
-        car.x = road.startNode.x + dx * movingProgress;
-        car.y = road.startNode.y + dy * movingProgress;
-        car.angle = Math.atan2(dy, dx);
-        if (car.direction === -1) car.angle += Math.PI;
-
-        if (dx === 0) {
-            car.x += ((dy > 0 && car.direction === 1) || (dy < 0 && car.direction === -1)) ? LANE_OFFSET : -LANE_OFFSET;
-        } else if (dy === 0) {
-            car.y += ((dx > 0 && car.direction === 1) || (dx < 0 && car.direction === -1)) ? -LANE_OFFSET : LANE_OFFSET;
-        }
-    }
-
-    private getDirectionForNextRoad(node: INode, road: IRoadNode): { direction: 1 | -1; movingProgress: number } {
-        if (road.startNode === node) return { direction: 1, movingProgress: 0 };
-        if (road.endNode === node) return { direction: -1, movingProgress: 1 };
-        return { direction: 1, movingProgress: 0 };
-    }
-
-    private getDistanceToNode(car: Car): number {
-        return car.road.length * (car.direction === 1 ? (1 - car.movingProgress) : car.movingProgress);
-    }
-
-    private isSafeToProceed(car: Car): boolean {
-        const carsOnSameRoad = this._state.cars.filter(
-            c => c.road === car.road && c !== car && c.direction === car.direction
-        );
-
-        const sorted = carsOnSameRoad.sort((a, b) =>
-            car.direction === 1 ? a.movingProgress - b.movingProgress : b.movingProgress - a.movingProgress
-        );
-
-        const roadLength = car.road.length;
-        const reactionTime = 100;
-        const reactionDistance = car.velocity * reactionTime;
-        const brakingDistance = (car.velocity ** 2) / DECELERATION;
-        const dynamicSafeDistance = reactionDistance + brakingDistance + CAR_LENGTH + SAFE_DISTANCE;
-
-        for (const other of sorted) {
-            const gap = (other.movingProgress - car.movingProgress) * car.direction;
-            if (gap > 0 && gap < dynamicSafeDistance / roadLength) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private isSpotTaken(roadId: string, movingProgress: number, usedSpots: Map<string, number[]>): boolean {
-        return (usedSpots.get(roadId) || []).some(existingT =>
-            Math.abs(existingT - movingProgress) < (CAR_LENGTH + SAFE_DISTANCE) / this.simRoads.find(r => r.id === roadId)!.length
-        );
-    }
-
-    private registerSpot(roadId: string, movingProgress: number, usedSpots: Map<string, number[]>): void {
-        const roadSpots = usedSpots.get(roadId) || [];
-        roadSpots.push(movingProgress);
-        usedSpots.set(roadId, roadSpots);
     }
 }

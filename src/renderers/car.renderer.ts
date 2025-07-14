@@ -23,7 +23,7 @@ export class CarRenderer extends Renderer<Car> {
         const windowX = -width / 2 + 1;
 
         if ((targetSpeed + STOP_LIGHT_THRESHOLD) < velocity || waiting || car.velocity === 0) {
-            this._drawLights(windowX, -height / 2, '#FF0000', 4);
+            this._drawLights(windowX, -height / 2, '#FF0000', 3);
         }
 
         this._drawLights(windowX, height / 2 - 1, '#FFFFFFA0', 2);

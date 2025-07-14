@@ -65,8 +65,8 @@ export class EditModeService {
         this._stateHistoryManager.save();
 
         this._state.roads.push({
-            id: uuid(),
             ...road,
+            id: uuid(),
         });
 
         this._setCrossroads();

@@ -3,10 +3,9 @@ import { ILine, IPoint } from './geometry.models';
 import { v4 as uuid } from 'uuid';
 
 export interface IRoad extends ILine {
-    id?: string;
+    id: string;
 }
 
-// todo: add enum for light id
 export interface ICrossRoad extends IPoint {
     number?: number;
     horizontalLightId?: number; // 0-green, 1-yellow, 2-red
@@ -60,8 +59,10 @@ export class Car {
 
     constructor(
         public road: IRoadNode,
-        public direction: number, // 1 | -1
-        public movingProgress: number, // 1 = start of the road, 0 = end of the road
+        // 1 = forward, -1 = backward according to start/end point of the road
+        public direction: number,
+        // 0 = start of the road, 1 = end of the road
+        public movingProgress: number,
         public speed: number,
     ) {
         this.id = uuid();
