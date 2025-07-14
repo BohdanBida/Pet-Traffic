@@ -54,6 +54,9 @@ export class Car {
     public x: number;
     public y: number;
     public angle: number;
+    public nextRoad?: IRoadNode;
+    public nextDirection?: 1 | -1;
+    public nextProgress?: number;
 
     constructor(
         public road: IRoadNode,
