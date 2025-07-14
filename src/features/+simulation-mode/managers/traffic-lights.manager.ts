@@ -55,7 +55,7 @@ export class TrafficLightsManager {
         }
     }
 
-    public destroy(): void {
+    public stop(): void {
         this._destroy$.next();
         this._destroy$.complete();
     }

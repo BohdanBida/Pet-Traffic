@@ -30,3 +30,5 @@ export const NOTIFICATION_CACHE_OPTIONS: IDropdownOption<NotificationCacheOption
     { value: NotificationCacheOptions.Last100, label: 'Show last 100' },
     { value: NotificationCacheOptions.All, label: 'Show All' },
 ];
+
+export const TICKS_PER_SECOND = 60;

@@ -10,5 +10,3 @@ export const DECELERATION = 0.0002;
 export const MAX_PX_PER_TICK = 10;
 
 export const TRAFFIC_LIGHT_CYCLE = 2800;
-
-export const TICKS_PER_SECOND = 60;

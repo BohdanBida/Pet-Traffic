@@ -1,5 +1,4 @@
-import { MAX_PX_PER_TICK, TICKS_PER_SECOND } from './constants/index';
-import { interval, Subject, takeUntil } from 'rxjs';
+import { MAX_PX_PER_TICK } from './constants/index';
 import { Injectable } from '@app/core/di';
 import {
     ACCELERATION,
@@ -14,17 +13,19 @@ import { State } from '@app/state';
 import { AppMode, INode, IRoadNode, Car } from '@app/models';
 import { SimulationModeHelper } from './helpers';
 import { TrafficLightsManager } from './managers';
+import { TickService } from '@app/core/services';
+import { TICKS_PER_SECOND } from '@app/constants';
 
-@Injectable([State, TrafficLightsManager])
+@Injectable([State, TrafficLightsManager, TickService])
 export class SimulationModeService {
     public simNodes: INode[] = [];
-    public simRoads: IRoadNode[] = [];
 
-    private _destroy$ = new Subject<void>();
+    public simRoads: IRoadNode[] = [];
 
     constructor(
         private readonly _state: State,
         private readonly _traffic: TrafficLightsManager,
+        private readonly _tickService: TickService,
     ) { }
 
     public run(): void {
@@ -38,15 +39,13 @@ export class SimulationModeService {
 
         this.init();
 
-        this._destroy$ = new Subject<void>();
-        interval(1000 / TICKS_PER_SECOND).pipe(takeUntil(this._destroy$)).subscribe(() => this.step());
+        this._tickService.start().subscribe(() => this.step());
     }
 
     public stop(): void {
         this._state.cars = [];
-        this._destroy$.next();
-        this._destroy$.complete();
-        this._traffic.destroy();
+        this._tickService.stop();
+        this._traffic.stop();
     }
 
     public convertEditToSim(): void {
