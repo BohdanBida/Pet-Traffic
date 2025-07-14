@@ -180,7 +180,8 @@ export class SimulationModeService {
         const isYellow = lightId === 1;
 
         const isApproaching = distanceToNode <= CROSSROAD_STOP_DISTANCE;
-        const isInside = distanceToNode < CROSSROAD_STOP_DISTANCE / 2;
+        const isInside = distanceToNode < (CAR_LENGTH + SAFE_DISTANCE * 2);
+
 
         if (car.waiting) {
             if (lightId === 0 && this.isSafeToProceed(car)) {
