@@ -1,4 +1,4 @@
-import { map, merge, Observable, tap } from 'rxjs';
+import { fromEvent, map, merge, Observable, tap } from 'rxjs';
 import { Injectable } from '@app/core/di';
 import { State } from '@app/state';
 import { UserEventsService, UserInputService } from '@app/core/services';
@@ -38,6 +38,27 @@ export class UserInteractionsHandlerService {
             ),
             this.userInputService.mouseUp$.pipe(
                 tap((e: MouseEvent) => this._strategy.onMouseUp(e)),
+            ),
+        ).pipe(map(() => undefined));
+    }
+
+    public listenKeyboardEvents(): Observable<void> {
+        return merge(
+            fromEvent<KeyboardEvent>(document, 'keydown').pipe(
+                tap((e: KeyboardEvent) => {
+                    if (e.key === 'Alt') {
+                        this.state.adjustByObjectsMode$.next(true);
+                    }
+                }),
+            ),
+            fromEvent<KeyboardEvent>(document, 'keyup').pipe(
+                tap((e: KeyboardEvent) => {
+                    e.preventDefault();
+
+                    if (e.key === 'Alt') {
+                        this.state.adjustByObjectsMode$.next(false);
+                    }
+                }),
             ),
         ).pipe(map(() => undefined));
     }

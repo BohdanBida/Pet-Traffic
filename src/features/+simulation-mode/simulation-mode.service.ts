@@ -33,6 +33,10 @@ export class SimulationModeService {
     public run(): void {
         this.stop();
 
+        if (!this._state.roads.length) {
+            return;
+        }
+
         this._state.mode$.next(AppMode.Simulation);
 
         this.convertEditToSim();
